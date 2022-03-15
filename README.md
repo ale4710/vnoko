@@ -24,7 +24,7 @@ save files are compatible with the Nintendo DS version of VNDS!!*\**
 
 you can copy your novels, saves and all, to your kaios device and vnoko can see you save files just fine!
 
-however, the other way around, saves in slots 13~99 will not be seen by VNDS. otherwise it will work.
+however, the other way around, saves in slots 17~99 (or something like that) will not be seen by VNDS. otherwise it will work.
 
 *\*barely tested*
 
