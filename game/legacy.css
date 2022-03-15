@@ -1,0 +1,11 @@
+body:-moz-full-screen .overlay-menu {opacity: 0;}
+
+:root body:-moz-full-screen {
+    --navbarHeight: var(--navbarHeightGame);
+}
+
+/* @media (orientation: landscape) {
+    body:-moz-full-screen #navbar {
+        background: var(--textboxBg);
+    }
+} */

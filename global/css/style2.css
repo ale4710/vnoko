@@ -1,0 +1,94 @@
+.option-entry {
+    --oePadding: 5px;
+    padding: 0 var(--oePadding);
+    overflow: hidden;
+    position: relative;
+}
+.option-entry:focus, .focusable-item:focus {
+    background:var(--textColor);
+    color:var(--background);
+}
+
+div.option-menu-cont {
+    bottom: var(--navbarHeight);
+    left:0;
+    position: absolute;
+    width:100%;
+    background: var(--background);
+    max-height: 100vh;
+}
+.option-menu {
+    overflow-y: scroll;
+    max-height: calc(100vh - 70px);
+}
+
+/* inputs and other stuff */
+.option-entry input + span {right: var(--oePadding)}
+input[type=checkbox], input[type=radio] {display: none;}
+
+input:not(
+    [type=checkbox],
+    [type=radio]
+) {
+    height: 20px;
+    width: 90%;
+    border: 1px solid var(--borderColor);
+    color: var(--textColor);
+    background: var(--background);
+    margin: 3% 0;
+    padding: 2%;
+    font-size: 16px;
+    display: inline-block;
+}
+
+input[type=checkbox] + span {--pd: 0.8}
+input[type=radio] + span {--pd: 0.7}
+
+input[type=checkbox] + span, input[type=radio] + span {
+    --ts: 0.8em;
+    --fs: calc(var(--pd) * var(--ts));
+    display: inline-block;
+    padding: calc((var(--ts) - var(--fs)) / 2);
+    width: var(--fs);
+    height: var(--fs);
+    border: 1px solid var(--borderColor);
+    overflow: hidden;
+}
+input[type=checkbox] + span::before, input[type=radio] + span::before {
+    content: "";
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: var(--borderColor);
+}
+input[type=checkbox] + span, input[type=checkbox] + span::before {border-radius: 5%}
+input[type=radio] + span, input[type=radio] + span::before {border-radius: 50%}
+
+input[type=checkbox]:checked + span::before,
+input[type=radio]:checked + span::before {
+    display: block;
+}
+
+.tabstrip {
+    height: 26px;
+    padding-top: 3px;
+    padding-bottom: 10px; /* to hide the scrollbar */
+	background: var(--background2);
+    white-space: nowrap;
+    overflow-x: scroll;
+}
+.tabstrip-cont {
+	overflow: hidden;
+	height: 30px;
+    width: 100%;
+}
+.tabstrip-tab {
+    border-bottom: 2px solid rgba(0,0,0,0);
+    display: inline-block;
+    text-align: center;
+    padding: 0 8px;
+}
+.tabstrip-tab.active {
+    border-bottom: 2px solid var(--mainAccent);
+    font-weight: bold;
+}

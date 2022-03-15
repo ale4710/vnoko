@@ -1,0 +1,22 @@
+{
+  "name": "VNoko",
+  "description": "VNDS interpreter for the web, more specifically KaiOS. \"Visual Novel on KaiOS\"",
+  "launch_path": "/settings/index.html#firstboot",
+  "default_locale": "en-US",
+  "type": "privileged",
+  "theme_color": "#FFFFFF",
+  "version": "0.0.0",
+  "icons": {
+    "112": "/img/appicon/112.png"
+  },
+  "developer": {
+    "name": "ale4710",
+    "url": "https://alego.web.fc2.com/"
+  },
+  "permissions": {
+      "device-storage:sdcard": {"access": "readwrite"}
+  },
+  "chrome":{
+    "statusbar":"overlap"
+}
+}

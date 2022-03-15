@@ -1,0 +1,292 @@
+body {
+    overflow: hidden;
+}
+:root {
+    --navbarHeightGame: 25px;
+}
+:root body:fullscreen {
+    --navbarHeight: var(--navbarHeightGame);
+}
+
+#gamescreen {
+    background: var(--black); /* will be black */
+    overflow: hidden;
+    width: 100vw;
+    position: relative;
+}
+body.nvl:not(.hideTextBox) #gamescreen {
+    opacity: 0.25;
+}
+#gamescreen div img {
+    position: absolute;
+}
+#gamescreen div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(var(--screenScale));
+    /* transform-origin: 0 0; */
+    width: var(--gameWidth);
+    height: var(--gameHeight);
+    background-color: var(--black);
+    background-size: cover;
+
+    /* background: url('/img/test.png'); */
+}
+
+#textbox {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    /* width: calc(100vw - (var(--globalPadding) * 2)); */
+}
+body.nvl #textbox {
+    height: calc(100vh - var(--navbarHeightGame));
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+body.hideTextBox #textbox,
+body.hideTextBox #navbar {
+    display: none;
+}
+
+#textbox > div {
+    padding: 0 var(--globalPadding);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    line-break: auto;
+    height: 100%;
+    /* width: 100%; */
+    width: calc(100vw - (var(--globalPadding) * 2));
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* sounds progress display */
+/* #textbox > div */#sounds-progress {
+    overflow: hidden;
+    padding: 0;
+    /* height: unset; */
+    width: 17vw;
+    position: absolute;
+
+    /* top: unset;
+    bottom: 0;
+    left: unset;
+    right: 0; */
+
+    right: 25px;
+
+    /* background: var(--background); */
+
+    --sndProgPadding: 1px;
+}
+/* #textbox > div */#sounds-progress > div {
+    background: var(--whitetr25);
+    /* width: calc(100% - (var(--sndProgPadding) * 2)); */
+    width: 100%;
+    height: 3px;
+    margin-top: var(--sndProgPadding);
+    position: relative;
+    /* left: var(--sndProgPadding); */
+}
+/* #textbox > div */#sounds-progress > div:last-child {
+    margin-bottom: var(--sndProgPadding);
+}
+/* #textbox > div */#sounds-progress > div > div {
+    background: var(--textColor);
+    height: 100%;
+    width: 0;
+}
+
+/* font */
+#story .text,
+#story .choiceSelected,
+#choices {
+    font-family: "novelCustomFont", var(--font);
+}
+#story, #choices {
+    line-height: 1.2;
+}
+
+/* textbox with story */
+#textbox #story {
+    padding-right: calc(var(--globalPadding) * 2);
+}
+#story > div {
+    position: relative;
+}
+#story > div:last-child:not(.noHilight) {
+    color: #afa;
+}
+#story .blanker {
+    height: 100%;
+}
+#story .text.saved {
+    --savedText: "Saved";
+    --savedIndicatorHeight: 10px;
+    --savedIndicatorWidth: 31px;
+    --savedIndicatorPadding: 5px;
+}
+#story .text.saved::before,
+#story .text.saved::after {
+    display: block;
+    position: absolute;
+    opacity: 0.5;
+    font-family: var(--font);
+}
+#story .text.saved::before { /* the line */
+    content: "";
+    height: 1px;
+    width: calc(100% - 
+        var(--savedIndicatorWidth) - 
+        (var(--savedIndicatorPadding) * 2)
+    );
+    background: var(--textColor);
+    bottom: 0;
+    left: 0;
+}
+#story .text.saved::after { /* the label */
+    content: var(--savedText);
+    font-size: var(--savedIndicatorHeight);
+    font-style: italic;
+    text-align: center;
+    padding: 0 var(--savedIndicatorPadding);
+    width: var(--savedIndicatorWidth);
+    color: var(--background);
+    background: var(--textColor);
+    border-radius: calc(var(--savedIndicatorHeight) / 2);
+    bottom: calc((var(--savedIndicatorHeight) / 2) * -1);
+    right: 0;
+}
+
+/* system message */
+#story .systemMessage {
+    border: solid var(--borderColor);
+    border-width: 1px 0;
+    margin: 10px 0;
+    padding: 2px 0;
+    font-style: italic;
+    text-align: center;
+    position: relative;
+
+    --labelTopSize: 12px;
+}
+#story .systemMessage.warning {
+    --color: #ff0;
+    --headerTextColor: #000;
+}
+#story .systemMessage.error {
+    --color: #f00;
+    --headerTextColor: #fff;
+}
+#story .systemMessage.warning,
+#story .systemMessage.error {
+    padding-top: calc(2px + var(--labelTopSize));
+    border-color: var(--color);
+    color: var(--color);
+}
+/* header stuff */
+#story .systemMessage.warning::before,
+#story .systemMessage.error::before,
+#story .systemMessage.warning::after,
+#story .systemMessage.error::after {
+    position: absolute;
+    top: 0;
+}
+/* text */
+#story .systemMessage.warning::before,
+#story .systemMessage.error::before {
+    text-transform: uppercase;
+    text-align: left;
+    padding: 0 var(--globalPadding);
+    font-size: var(--labelTopSize);
+    left: 0;
+    width: calc(100% - (var(--globalPadding) * 2));
+    background-color: var(--color);
+    color: var(--headerTextColor);
+    background-position: calc(100% - var(--globalPadding)) -1px;
+    background-repeat: no-repeat;
+}
+#story .systemMessage.warning::before {
+    content: "warning";
+    background-image: url('/img/systemMessage/warning.png');
+}
+#story .systemMessage.error::before {
+    content: "error";
+    background-image: url('/img/systemMessage/error.png');
+}
+
+/* textbox with choices */
+#choices > div,
+#story .choiceSelected {
+    border: 1px solid var(--borderColor);
+    border-radius: 3px;
+    padding: 0 var(--globalPadding);
+    margin: calc(var(--globalPadding) / 2);
+}
+#story .choiceSelected {
+    margin: var(--globalPadding) 0;
+}
+#choices > div:focus {
+    background: var(--focusBackground);
+    color: var(--focusTextColor);
+}
+body.nvl #choices {
+    position: absolute;
+    height: unset;
+    max-height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#loading-overlay-text {
+    width: 100%;
+}
+
+/* tall */
+@media (orientation: portrait) {
+    #gamescreen {
+        height: 75vw;
+    }
+
+    body.nvl #gamescreen {
+        position: absolute;
+        width: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    body:not(.nvl) #textbox {
+        height: calc(
+            100vh - 75vw - var(--navbarHeightGame)
+        );
+    }
+}
+
+/* wide */
+@media (orientation: landscape) {
+    :root {
+        --textboxBg: var(--blacktr);
+    }
+
+    #gamescreen {
+        height: 100vh;    
+    }
+
+    #textbox {
+        border-bottom-width: var(--navbarHeightGame);
+        border-bottom-color: transparent;
+        border-bottom-style: solid;
+    }
+
+    body:not(.nvl) #textbox {
+        background: var(--textboxBg);
+        border-top: 1px solid var(--borderColor);
+        height: calc(40vh - var(--navbarHeightGame));
+        position: absolute;
+        bottom: 0;
+    }
+}

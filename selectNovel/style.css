@@ -1,0 +1,77 @@
+:root {
+    --novelIconSize: 32px;
+    --infoPanelHeight: 60px;
+}
+
+/* list */
+#novelList {
+    /* for somereason we cant use calc with a variable that itself is a result of calc. */
+    height: 
+        /* calc(var(--main-screen-wh-height) - var(--infoPanelHeight)) */
+        calc(
+            100vh - var(--navbarHeight) - var(--statusbarHeight) -
+            var(--headerHeight) - 
+            var(--infoPanelHeight)
+        );
+}
+#novelList > div {
+    height: var(--novelIconSize);
+    position: relative;
+}
+
+.novelTitle,
+.novelIcon {
+    position: absolute;
+}
+.novelIcon {
+    background: rgba(0,0,0,0.75);
+}
+.novelTitle {
+    width: calc(100% - var(--novelIconSize) - var(--globalPadding));
+    left: calc(var(--novelIconSize) + var(--globalPadding));
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.novelIcon {
+    width: var(--novelIconSize);
+    height: var(--novelIconSize);
+    left: 0;
+    top: 0;
+    object-fit: contain;
+}
+
+/* info panel */
+#novelInfo {
+    height: var(--infoPanelHeight);
+    overflow: hidden;
+    line-height: 1.2;
+}
+#novelInfo > * {
+    position: absolute;
+}
+#novelInfoBg {
+    object-fit: cover;
+    opacity: 0.2;
+    filter: blur(4px);
+    left: 0;
+    top: 0;
+}
+:root {
+    --novelInfoThumbnailWidth: calc(var(--infoPanelHeight) * (4/3));
+}
+#novelInfoThumbnail {
+    padding-right: var(--globalPadding);
+    height: var(--infoPanelHeight);
+    width: var(--novelInfoThumbnailWidth);
+    object-fit: contain;
+    left: 0;
+    top: 0;
+}
+#novelInfoTitle {
+    /* width: calc(100% - var(--novelInfoThumbnailWidth)); */
+    width: calc(100% - (var(--infoPanelHeight) * (4/3)));
+
+    left: var(--novelInfoThumbnailWidth);
+    text-align: center;
+}

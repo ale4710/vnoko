@@ -1,0 +1,163 @@
+:root {
+    --font: "noto sans", "open sans";
+    --navbarHeight: 30px;
+    --navbarPadding: 5px;
+
+    --globalPadding: 5px;
+
+    --statusbarHeight: 30px;
+
+    --black: #000;
+    --blacktr: rgba(0,0,0,0.75);
+    --white: #fff;
+    --whitetr25: rgba(255,255,255,0.25);
+    --grey: #333;
+
+    --background: var(--black);
+    --background2: var(--grey);
+    --textColor: var(--white);
+    --mainAccent: #afa;
+
+    --borderColor: var(--white);
+
+    --focusBackground: var(--textColor);
+    --focusTextColor: var(--background);
+}
+
+:focus {
+    outline: none;
+}
+
+body {
+    background: var(--background);
+    color: var(--textColor);
+    margin: 0;
+    font-family: var(--font);
+}
+
+.fill, .fillwidth {width:100%}
+.fill, .fillheight {height:100%}
+.vcenter {
+    top: 50%;
+    transform: translateY(-50%);
+}
+.center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.centerText {
+    text-align: center;
+}
+.posabs {position: absolute;}
+.posrel {position: relative;}
+
+.hidden {
+    display: none;
+}
+
+.vscroll {overflow-y: scroll; overflow-x: hidden;}
+
+.solidBg {
+    background: var(--background);
+}
+.dimmer {
+    background: var(--blacktr);
+}
+
+.selectable:focus {
+    background: var(--focusBackground);
+    color: var(--focusTextColor);
+}
+
+/* header */
+:root {
+    --headerHeight: 30px;
+}
+.header {
+    background: var(--grey);
+    height: var(--headerHeight);
+    position: relative;
+    white-space: nowrap;
+}
+
+/* main screen */
+:root {
+    --main-screen-width: calc(100vw - (var(--globalPadding) * 2));
+    --main-screen-height: calc(100vh - var(--navbarHeight) - var(--statusbarHeight));
+
+    --main-screen-wh-height: calc(100vh - var(--navbarHeight) - var(--statusbarHeight) - var(--headerHeight));
+    /* i do not know why the below does not work */
+    /* --main-screen-wh-height: calc(
+        var(--main-screen-height) - 
+        var(--headerHeight)
+    ); */
+}
+.main-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: var(--main-screen-height);
+    padding: var(--statusbarHeight) 0 var(--navbarHeight);
+    background: var(--blacktr);    
+}
+.main-screen > div {
+    position: relative;
+}
+.main-screen .in {
+    height: var(--main-screen-height);
+}
+.main-screen .in.withHeader {
+    height: var(--main-screen-wh-height);
+}
+
+/* messagebox */
+#messageBox {
+    background: var(--background);
+    position: absolute;
+    width: 100vw;
+    bottom: var(--navbarHeight);
+}
+#messageBox .body {
+    padding: 0 var(--globalPadding);
+    height: 65vh;
+    overflow-y: scroll;
+}
+
+/* alertMessage (toast messages) */
+#alertMessage {
+    transition: transform 0.1s;
+    transform: translateY(-100%);
+    position: absolute;
+    top: 0;
+    width: 90vw;
+    padding: var(--globalPadding) 5vw;
+    height: auto;
+    z-index: 100;
+    background: rgba(37,37,37,0.75);
+}
+
+/*** navigation bar ***/
+#navbar {
+    position: absolute;
+    width: 100vw;
+    height: var(--navbarHeight);
+    bottom: 0;
+    /* background: var(--background-color-navbar); */
+}
+#navbar-left, #navbar-right, #navbar-center {
+    position: absolute; 
+    top: 50%;
+    transform: translateY(-50%);
+    text-transform: capitalize;
+}
+#navbar-center {
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+#navbar-left {left: var(--navbarPadding);}
+#navbar-right {right: var(--navbarPadding);}

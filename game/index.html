@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- global stuff (style and scripts) -->
+    <script src="/global/js/common.js"></script>
+    <!-- local styles and scripts -->
+    <script src="resources.js"></script>
+</head>
+<body>
+    <div id="gamescreen"></div>
+    <div id="textbox">
+        <div id="story" tabindex="-1"></div>
+        <div id="choices" class="hidden"></div>
+    </div>
+
+    <div id="pause-menu" class="main-screen overlay-menu">
+        <div id="pm-nowplaying-container">
+            <div id="pm-nowplaying-label">You are now reading...</div>
+            <img id="pm-nowplaying-icon" src="/img/placeholder-icon.png" />
+            <div id="pm-nowplaying"></div>
+        </div>
+        <div id="pm-options"></div>
+    </div>
+
+    <div id="saveload-menu-container" class="main-screen overlay-menu hidden">
+        <div id="saveload-menu">
+            <div id="saveload-menu-list" class="vscroll"></div>
+            <div id="saveload-menu-infopanel">
+                <img id="saveload-menu-infopanel-img" src="/img/placeholder-thumbnail.png" />
+                <div id="saveload-menu-infopanel-title"></div>
+                <div id="saveload-menu-infopanel-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="center fill solidBg">
+        <div id="loading-overlay-text" class="center centerText">Loading...</div>
+    </div>
+</body>
+</html>

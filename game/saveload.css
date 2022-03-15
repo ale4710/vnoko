@@ -1,0 +1,30 @@
+:root {
+    --saveload-infopanel-height: 60px;
+}
+#saveload-menu {
+    position: relative;
+    /* width: 100vw; */
+    /* left: calc(-1 * var(--globalPadding)); */
+    height: calc(100vh - (var(--statusbarHeight) + var(--navbarHeight)))
+}
+#saveload-menu-list {
+    /* overflow-x: hidden;
+    overflow-y: scroll; */
+    height: calc(100% - var(--saveload-infopanel-height));
+}
+#saveload-menu-infopanel {
+    overflow: hidden;
+    height: calc(var(--saveload-infopanel-height) - 1px);
+    border-top: 1px solid #fff;
+    padding: 0 var(--globalPadding);
+    position: relative;
+}
+#saveload-menu-infopanel-text {
+    font-size: 13px;
+    text-overflow: clip;
+}
+#saveload-menu-infopanel-img {
+    float: left;
+    height: 100%;
+    padding-right: var(--globalPadding);
+}
