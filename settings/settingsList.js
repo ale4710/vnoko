@@ -68,7 +68,7 @@ settingsList = {
         ]
     },
     'font-size': {
-        label: 'Use Novel Font',
+        label: 'Font Size',
         type: 2,
         default: 12
     },
