@@ -105,7 +105,9 @@ body.hideTextBox #navbar {
 #story .text,
 #story .choiceSelected,
 #choices {
+    --fontSize: unset; /* overridden, but here just in case */
     font-family: "novelCustomFont", var(--font);
+    font-size: var(--fontSize);
 }
 #story, #choices {
     line-height: 1.2;

@@ -67,6 +67,11 @@ settingsList = {
             'Use'
         ]
     },
+    'font-size': {
+        label: 'Use Novel Font',
+        type: 2,
+        default: 12
+    },
     'default-display-mode': {
         label: 'Default Display Mode',
         type: 0,
@@ -113,6 +118,7 @@ settingsListCategories = {
         label: 'Display',
         settings: [
             'default-display-mode',
+            'font-size',
             'use-novel-font'
         ]
     }

@@ -6,6 +6,8 @@ window.addEventListener('DOMContentLoaded', ()=>{ //load the stuff.
 		toggleNvlMode(true);
 	}
 
+	eid('textbox').style.setProperty('--fontSize', getSettingValue('font-size') + 'px')
+
 	//ok load for real
     var updateText = (txt)=>{
 		eid('loading-overlay-text').textContent = txt;
