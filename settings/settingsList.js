@@ -70,7 +70,7 @@ settingsList = {
     'font-size': {
         label: 'Font Size',
         type: 2,
-        default: 12
+        default: 16
     },
     'default-display-mode': {
         label: 'Default Display Mode',
