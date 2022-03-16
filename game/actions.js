@@ -15,6 +15,8 @@ function rotateScreen(force) {
         screen.orientation.lock(
             rots[force]
         );
+
+        textboxScrollToBottom(true);
     }
 }
 
