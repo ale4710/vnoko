@@ -303,7 +303,8 @@ function settingChangeK(k) {
             hideSettingChangeDialog();
             break;
         case 'Enter': 
-            switch(settingsList[currentSetting.name].type) {
+            var cs = settingsList[currentSetting.name];
+            switch(cs.type) {
                 case 0: //radio
                     updateSetting(currentSetting.name, actEl().tabIndex);
                     hideSettingChangeDialog();
@@ -315,22 +316,36 @@ function settingChangeK(k) {
                         settingChangeDialog.getValue().value
                     );
                     break;
-                case 3:
-                    if('check' in settingsList[currentSetting.name]) {
-                        if(!settingsList[currentSetting.name].check(actEl().value)) {
-                            alertMessage('Invalid input.', 5000, 3);
-                            break;
-                        }
-                    }
-                case 2:
-                    updateSetting(
-                        currentSetting.name,
 
-                        //both of the below work fine
-                        settingChangeDialog.getValue().value
-                        //actEl().value
-                    );
-                    hideSettingChangeDialog();
+                case 3: //text
+                case 2: //tel
+                    var cn = settingChangeDialog.getSelected().value,
+                    pass = false;
+                    switch(cs.type) {
+                        case 2:
+                            if(/^\d+(?:\.\d+)?$/.test(cn)) {
+                                pass = true;
+                            }
+                            break;
+                        case 3:
+                            pass = true;
+                            if('check' in cs) {
+                                if(!cs.check(cn)) {
+                                    pass = false;
+                                }
+                            }
+                            break;
+                    }
+
+                    if(pass) {
+                        updateSetting(
+                            currentSetting.name,
+                            cn
+                        );
+                        hideSettingChangeDialog();
+                    } else {
+                        alertMessage('Invalid input.', 5000, 3);
+                    }
                     break;
             }
 

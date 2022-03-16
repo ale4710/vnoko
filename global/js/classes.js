@@ -48,6 +48,31 @@ if(isClassSupported()) {
                 )
             }
         }
+
+        setValue(indiciesOrValue, value) {
+            switch(this.inputType) {
+                case 'radio':
+                    this.menu.children[indiciesOrValue].checked = !!value;
+                    break;
+                case 'checkbox':
+                    if(
+                        Array.isArray(indiciesOrValue) &&
+                        Array.isArray(value)
+                    ) {
+                        indiciesOrValue.forEach((menuIndex, arrayIndex)=>{
+                            this.menu.children[menuIndex].checked = !!value[arrayIndex];
+                        });
+                    } else {
+                        throw TypeError(`both parameters passed to setValue on a checkbox ${OptionsMenuSelectable.name} needs to be an array of indicies.`);
+                    }
+                    break;
+                case 'text':
+                case 'tel':
+                    this.menu.children[0].value = indiciesOrValue;
+                    break;
+            }
+        }
+    
     
         menuViewToggle(v,f,fn) {
             if(v) {
