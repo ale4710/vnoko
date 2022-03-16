@@ -11,11 +11,11 @@ function mainK(k) {
                     pause();
                     break;
                 default:
-                    if(inChoice) {
-                        navigateChoiceK(k);
+                    if(textboxHidden) {
+                        unhideTextBox();
                     } else {
-                        if(textboxHidden) {
-                            unhideTextBox();
+                        if(inChoice) {
+                            navigateChoiceK(k);
                         } else {
                             gameK(k);
                         }
@@ -58,7 +58,14 @@ function gameK(k) {
                 continueScript();
             }
             break;
-
+        default:
+            shortcutKeys(k);
+            break;
+        
+    }
+}
+function shortcutKeys(k) {
+    switch(k.key) {
         case '#':
             rotateScreen();
             break;

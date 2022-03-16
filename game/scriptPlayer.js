@@ -157,7 +157,10 @@ function navigateChoiceK(k) {
                 choiceTempShowingBacklog = true;
                 showChoices(false);
                 gameTextboxFocus();
-                break;        
+                break;
+            default:
+                shortcutKeys(k);
+                break;
         }
     }
 
