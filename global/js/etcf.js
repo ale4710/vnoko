@@ -198,12 +198,13 @@ function alertMessage(message,disptime,type) {
     ame.style.color = clr;
     ame.style.backgroundColor = bgc;
     ame.textContent = message;
-    ame.style.transform = 'translate(0)';
+    
+    ame.classList.add('show');
     
     if(disptime > 0) {
         alertMessageTO = setTimeout(function(){
             alertMessageTO = false;
-            ame.style.transform = null;
+            ame.classList.remove('show');
         },disptime);
     }
 }
