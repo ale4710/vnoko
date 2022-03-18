@@ -8,6 +8,7 @@
         'pauseMenu',
         'scriptParse',
         'load',
+        'choices',
         'scriptPlayer',
         'sounds',
         'display',
