@@ -212,6 +212,7 @@ function replaceAllVar(str) {
     str = str.replace(scriptPatterns.var.wrapped, repFn); //{$whatever} -> whatever
     str = repDolToPC(str);
     str = str.replace(scriptPatterns.var.unwrapped, repFn); //$whatever -> whatever
+    str = repDolToPC(str);
     str = str.replace(privateCharacter, '$'); //{privateCharacter} -> $
 
     return str;
