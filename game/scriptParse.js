@@ -190,7 +190,7 @@ function parseScript(text) {
     
                         case 'random':
                             var prms = ssaws(instAfter),
-                            intPtrn = scriptPatterns.num.int;
+                            intPtrn = regexs.num.int;
 
                             if(
                                 prms[0].match(scriptPatterns.var.justCheck) &&

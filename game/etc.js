@@ -10,10 +10,6 @@ var scriptPatterns = {
         after: /^[a-z]+(.*)/i,
         only: /^[a-z]+/i
     },
-    num: {
-        int: /^\-?\d+$/,
-        float: /^\-?\d+(?:\.\d+)?$/
-    },
     string: /^"([^"\n]*)"$/,
     cssPxVal: /^(\d+)px$/,
 	newline: /\r?\n/,

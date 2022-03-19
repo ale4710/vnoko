@@ -27,8 +27,10 @@ settingsList = {
         'default': number or string,
         //default setting
 
-        'check': function,
-        //used for text input, to check for valid input.
+        'check': function or number,
+        //used to check for valid input.
+        //when text input, it is function.
+        //when number input, it is number. it will check to see if the number is correct. [ 1 ] is int. [ 2 ] is float.
 
         'help': string,
         //used for the "help" action. shows what the setting will do, or something.
@@ -70,7 +72,21 @@ settingsList = {
     'font-size': {
         label: 'Font Size',
         type: 2,
+        check: 2,
         default: 16
+    },
+    'backlog-history-max-length': {
+        label: 'Maximum Backlog',
+        type: 2,
+        check: (n)=>{
+            if(
+                regexs.num.float.test(n) &&
+                n >= 50
+            ) {
+                return true;
+            }
+        },
+        default: 250
     },
     'default-display-mode': {
         label: 'Default Display Mode',
@@ -119,6 +135,7 @@ settingsListCategories = {
         settings: [
             'default-display-mode',
             'font-size',
+            'backlog-history-max-length',
             'use-novel-font'
         ]
     }

@@ -152,7 +152,7 @@ function serializeVariable(xmlRoot, varname, varval) {
 function variableNormalize(v, noLookStored) {
     switch(typeof(v)) {
         case 'string':
-            if(v.match(scriptPatterns.num.float)) { //is number
+            if(v.match(regexs.num.float)) { //is number
                 return parseFloat(v);
             } else {
                 var s = v.match(scriptPatterns.string); //is valid string

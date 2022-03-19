@@ -4,7 +4,14 @@ function actEl(){return document.activeElement}
 function makeEl(tp){return document.createElement(tp)}
 
 var navbar,
-emptyFn = ()=>{}
+emptyFn = ()=>{},
+
+regexs = {
+    num: {
+        int: /^\-?\d+$/,
+        float: /^\-?\d+(?:\.\d+)?$/
+    }
+}
 ;
 
 function outputNavbar(l,c,r) {
@@ -260,6 +267,14 @@ function scrollIntoView(el,dn,elpr) {
             el.scrollIntoView(true); //align to top
         }
     }
+}
+
+function focusInput(ip) {
+    ip.focus();
+    var ln = ip.value.length;
+    setTimeout(()=>{
+        ip.setSelectionRange(ln,ln); 
+    },1);
 }
 
 function lookfor(list,obj) {

@@ -323,9 +323,29 @@ function settingChangeK(k) {
                     pass = false;
                     switch(cs.type) {
                         case 2:
-                            if(/^\d+(?:\.\d+)?$/.test(cn)) {
-                                pass = true;
+                            switch(typeof(cs.check)) {
+                                case 'number': 
+                                    var rx;
+                                    switch(cs.check) {
+                                        default:
+                                        case 1:
+                                            //int
+                                            rx = regexs.num.int;
+                                            break;
+                                        case 2:
+                                            //float
+                                            rx = regexs.num.float;
+                                            break;
+                                    }
+                                    if(rx.test(cn)) {
+                                        pass = true;
+                                    }
+                                    break;
+                                case 'function':
+                                    pass = !!cs.check(cn);
+                                    break;
                             }
+                            cn = parseFloat(cn);
                             break;
                         case 3:
                             pass = true;

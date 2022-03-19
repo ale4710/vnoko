@@ -201,13 +201,19 @@ if(isClassSupported()) {
             //ft = focus type. 0 = nah, 1 = manual focus, 2 = focus on selected (depending on type)
             //n = which one to focus to (only works when ft = 1)
             if(v) {
-                if(
-                    ft === 2 &&
-                    this.inputType === 'radio'
-                ) {
-                    var selel = this.menu.querySelector('input:checked');
-                    if(selel) {
-                        n = selel.parentElement.tabIndex;
+                if(ft === 2) {
+                    switch(this.inputType) {
+                        case 'radio':
+                            var selel = this.menu.querySelector('input:checked');
+                            if(selel) {
+                                n = selel.parentElement.tabIndex;
+                            }
+                            break;
+                        case 'text':
+                        case 'tel':
+                            focusInput(this.menu.children[0]);
+                            ft = true;
+                            break;
                     }
                 }
             }
@@ -237,7 +243,7 @@ if(isClassSupported()) {
             opt.appendChild(input);
 
             var inputDisp = makeEl('span');
-            inputDisp.classList.add('vertical-center');
+            inputDisp.classList.add('vcenter');
             opt.appendChild(inputDisp);
             return opt;
         }

@@ -6,6 +6,8 @@ window.addEventListener('DOMContentLoaded', ()=>{ //load the stuff.
 		toggleNvlMode(true);
 	}
 
+	printTextMaxOverflow = getSettingValue('backlog-history-max-length');
+
 	eid('textbox').style.setProperty('--fontSize', getSettingValue('font-size') + 'px')
 
 	//ok load for real
@@ -116,7 +118,7 @@ window.addEventListener('DOMContentLoaded', ()=>{ //load the stuff.
 								if(opt.length === 2) {
 									if(
 										validSizes.indexOf(opt[0]) !== -1 &&
-										opt[1].match(scriptPatterns.num.int)
+										opt[1].match(regexs.num.int)
 									) {
 										sizes[opt[0]] = parseInt(opt[1]);
 									}

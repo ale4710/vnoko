@@ -542,7 +542,7 @@ function parseSaveFileVariable(cv) {
     if(name && type && value !== null) {
         switch(type) {
             case 'int':
-                if(value.match(scriptPatterns.num.int)) {
+                if(value.match(regexs.num.int)) {
                     value = parseInt(value);
                 } else {
                     console.warn(`variable ${name} wasn't a valid number (int only), skipping`);
