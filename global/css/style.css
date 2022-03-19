@@ -16,12 +16,14 @@
     --background: var(--black);
     --background2: var(--grey);
     --textColor: var(--white);
+    --iconInvert: 0;
     --mainAccent: #afa;
 
     --borderColor: var(--white);
 
     --focusBackground: var(--textColor);
     --focusTextColor: var(--background);
+    --focusIconInvert: 1;
 }
 
 :focus {
@@ -164,5 +166,6 @@ body {
     text-transform: uppercase;
     font-weight: bold;
 }
-#navbar-left {left: var(--navbarPadding);}
-#navbar-right {right: var(--navbarPadding);}
+#navbar-left, #navbar-right {font-size: 14px}
+#navbar-left {left: var(--navbarPadding)}
+#navbar-right {right: var(--navbarPadding)}
