@@ -2,8 +2,6 @@
 if(isClassSupported()) {
     window.OptionsMenu = class OptionsMenu {
         constructor(headerLabel) {
-            this.allowBackCV = null;
-    
             this.screen = makeEl('div');
             this.screen.classList.add(
                 'dimmer',
@@ -48,47 +46,21 @@ if(isClassSupported()) {
                 )
             }
         }
-
-        setValue(indiciesOrValue, value) {
-            switch(this.inputType) {
-                case 'radio':
-                    this.menu.children[indiciesOrValue].checked = !!value;
-                    break;
-                case 'checkbox':
-                    if(
-                        Array.isArray(indiciesOrValue) &&
-                        Array.isArray(value)
-                    ) {
-                        indiciesOrValue.forEach((menuIndex, arrayIndex)=>{
-                            this.menu.children[menuIndex].checked = !!value[arrayIndex];
-                        });
-                    } else {
-                        throw TypeError(`both parameters passed to setValue on a checkbox ${OptionsMenuSelectable.name} needs to be an array of indicies.`);
-                    }
-                    break;
-                case 'text':
-                case 'tel':
-                    this.menu.children[0].value = indiciesOrValue;
-                    break;
-            }
-        }
-    
     
         menuViewToggle(v,f,fn) {
             if(v) {
                 this.screen.classList.remove('hidden');
-                this.allowBackCV = allowBack;
-                allowBack = false;
                 if(f) {
-                    if(isNaN(fn)) {fn = 0;}
+                    if(
+                        isNaN(fn) ||
+                        typeof(fn) !== 'number'
+                    ) {fn = 0;}
                     if(fn in this.menu.children) {
                         this.menu.children[fn].focus();
                     }
                 }
             } else {
                 this.screen.classList.add('hidden');
-                if(typeof(this.allowBackCV) === 'boolean') {allowBack = this.allowBackCV;}
-                this.allowBackCV = null;
             }
         }
     
@@ -193,7 +165,30 @@ if(isClassSupported()) {
             } else {
                 return false;
             }
+        }
 
+        setValue(indiciesOrValue, value) {
+            switch(this.inputType) {
+                case 'radio':
+                    this.menu.children[indiciesOrValue].checked = !!value;
+                    break;
+                case 'checkbox':
+                    if(
+                        Array.isArray(indiciesOrValue) &&
+                        Array.isArray(value)
+                    ) {
+                        indiciesOrValue.forEach((menuIndex, arrayIndex)=>{
+                            this.menu.children[menuIndex].checked = !!value[arrayIndex];
+                        });
+                    } else {
+                        throw TypeError(`both parameters passed to setValue on a checkbox ${OptionsMenuSelectable.name} needs to be an array of indicies.`);
+                    }
+                    break;
+                case 'text':
+                case 'tel':
+                    this.menu.children[0].value = indiciesOrValue;
+                    break;
+            }
         }
 
         menuViewToggle(v,ft,n) {

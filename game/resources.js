@@ -12,6 +12,7 @@
         'scriptPlayer',
         'sounds',
         'display',
+        'actionMenu',
         'navbar',
         'keyHandler',
         'firstboot'

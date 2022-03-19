@@ -20,7 +20,6 @@ pauseMenuItems = {
         ['Resume', 'resume'],
         ['Save', 'save'],
         ['Load', 'load'],
-        ['Volume', 'volume'],
         ['Reset', 'reset'],
         ['Exit', 'returnToList']
     ].forEach((optArr)=>{
@@ -82,13 +81,13 @@ function pauseMenuK(k) {
                     rotateScreen(0);
                     location = '/selectNovel/index.html'; 
                     break;
-                case 'volume': navigator.volumeManager.requestShow(); break;
                 case 'save': saveloadMenuShow(0); break;
                 case 'load': saveloadMenuShow(1); break;
             }
             break;
         case 'Backspace':
             k.preventDefault();
+            unpause();
             break;
     }
 }

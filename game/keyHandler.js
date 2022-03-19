@@ -1,30 +1,43 @@
 var curpage = 0;
 
 function mainK(k) {
+    //console.log(k.key, curpage);
+
+    if([ //keys to completely ignore
+        'MicrophoneToggle' //results in double hits when "OK" is pressed
+    ].indexOf(k.key) !== -1) {
+        return;
+    }
+
     switch(curpage) {
         case 0: //"game" screen
+
+            if(textboxHidden) {
+                unhideTextBox();
+            }
+
             switch(k.key) {
                 case 'Backspace':
-                case 'SoftRight':
                     k.preventDefault();
                     skipToggle(false);
                     pause();
                     break;
+                case 'SoftRight':
+                    skipToggle(false);
+                    actionMenuShow();
+                    break;
                 default:
-                    if(textboxHidden) {
-                        unhideTextBox();
+                    if(inChoice) {
+                       navigateChoiceK(k);
                     } else {
-                        if(inChoice) {
-                            navigateChoiceK(k);
-                        } else {
-                            gameK(k);
-                        }
+                        gameK(k);
                     }
                     break;
             }
             break;
         case 1: pauseMenuK(k); break;
         case 2: saveloadMenuK(k); break;
+        case 3: actionMenuK(k); break;
     }
 };
 
@@ -49,14 +62,7 @@ function gameK(k) {
             }
             break;
         case 'SoftLeft':
-            if(
-                !wasSkipping &&
-                !inChoice &&
-                !locked
-            ) {
-                skipToggle(true);
-                continueScript();
-            }
+            startSkipping(wasSkipping);
             break;
         default:
             shortcutKeys(k);
@@ -64,19 +70,7 @@ function gameK(k) {
         
     }
 }
-function shortcutKeys(k) {
-    switch(k.key) {
-        case '#':
-            rotateScreen();
-            break;
-        case '1':
-            toggleNvlMode();
-            break;
-        case '3': 
-            hideTextBox();
-            break;
-    }
-}
+
 function gameTextboxFocus() {
     display.textbox.focus();
 }

@@ -76,7 +76,7 @@ function updatenavbar() {
             outputNavbar(icos);
             break;
         case 1: //pause menu
-            outputNavbar(null, 'select'); break;
+            outputNavbar(commonNavbars.select); break;
         case 2: //saveload menu
             var ct = null;
             if(saveloadAction === 0) {
@@ -88,6 +88,9 @@ function updatenavbar() {
                 ct = 'load';
             }
             outputNavbar(null, ct);
+            break;
+        case 3: //actionMenu
+            outputNavbar(commonNavbars.backSelect); 
             break;
     }
 }

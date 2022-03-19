@@ -30,3 +30,14 @@ function toggleNvlMode(force) {
         toggleNvlMode();
     }
 }
+
+function startSkipping(wasSkipping) {
+    if(
+        !wasSkipping &&
+        !inChoice &&
+        !locked
+    ) {
+        skipToggle(true);
+        continueScript();
+    }
+}
