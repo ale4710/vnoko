@@ -29,3 +29,8 @@ function globalUpdateNavbar() {
             break;
     }
 }
+
+var commonNavbars = {
+    backSelect: ['Back', 'Select'],
+    select: [null, 'Select']
+}
