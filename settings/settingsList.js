@@ -79,12 +79,10 @@ settingsList = {
         label: 'Maximum Backlog',
         type: 2,
         check: (n)=>{
-            if(
+            return (
                 regexs.num.float.test(n) &&
                 n >= 50
-            ) {
-                return true;
-            }
+            );
         },
         default: 250
     },
