@@ -17,7 +17,7 @@ body {
 body.nvl:not(.hideTextBox) #gamescreen {
     opacity: 0.25;
 }
-#gamescreen div img {
+#gamescreen > div > img {
     position: absolute;
 }
 #gamescreen div {
