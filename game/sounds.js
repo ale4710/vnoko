@@ -108,148 +108,161 @@ function stopSoundAll() {
     });
 }
 
-function playSound(callback, path, how, loops) {
-    var actuallyPlaySound = (url, h, l)=>{
-        switch(h) {
-            case soundsNameConst.sfx:
-                //sound effect
-                var caloop = false;
+function playSound(path, how, loops) {
+	return new Promise(function(topResolve, topReject){
+		let soundGetPromise;
 
-                if(
-                    isNaN(l) ||
-                    !isFinite(l)
-                ) {
-                    l = 1;
-                }
+		if(path) {
+			let urlStore;
+			switch(how) {
+				case soundsNameConst.bgm: urlStore = sounds.bgmUrls; break;
+				case soundsNameConst.sfx: urlStore = sounds.sfxUrls; break;
+			}
 
-                switch(l) {
-                    case undefined:
-                    case null:
-                        l = 1;
-                        break;
-                    case 0:
-                        //play it... no times...?
-                        setTimeout(callback);
-                        return;
-                    case -1:
-                        caloop = true;
-                        break;
-                }
+			let esObjUrl = urlStore[path];
+			if(esObjUrl) {
+				if(esObjUrl.loading) {
+					soundGetPromise = (new Promise((resolve)=>{
+						esObjUrl.pending.push({
+							how: how,
+							loops: loops,
+							resolve: resolve
+						});
+					}));
+				} else if(esObjUrl.fail) {
+					topResolve();
+				} else {
+					soundGetPromise = Promise.resolve({
+						blobUrl: esObjUrl,
+						how: how,
+						loops: loops
+					});
+				}
+			} else {
+				let fileType = fileTypeConsts.sound;
+				
+				console.log('get sound anew');
+				loadingResource++;
 
-                var ca = new Audio(url);
-                ca.loop = caloop;
-                ca.play();
+				soundGetPromise = new Promise((resolve)=>{
+					let thisSndObj = {
+						loading: true,
+						pending: [{
+							how: how,
+							loops: loops,
+							resolve: resolve
+						}]
+					};
+					
+					urlStore[path] = thisSndObj;
+					getFile(
+						fileType, //sound and music use the same directory
+						path
+					).then((data)=>{
+						if(how === soundsNameConst.sfx) {loadingResource--;}
+						
+						let objectUrl;
+						
+						if(data.file) {
+							objectUrl = URL.createObjectURL(data.file);
+							urlStore[path] = objectUrl;
+						} else {
+							if(how === soundsNameConst.bgm) {
+								stopSound(soundsNameConst.bgm);
+								loadingResource--;
+								thisSndObj = {fail: true}
+							}
+							callback();
+						}
+						data = undefined; //never used again
+						
+						thisSndObj.pending.forEach((pendingSound)=>{
+							let psResolve = pendingSound.resolve;
+							if(objectUrl) {
+								delete pendingSound.resolve;
+								pendingSound.blobUrl = objectUrl;
+								psResolve(pendingSound);
+							} else {
+								psResolve();
+							}
+						});
+					});
+				});
+			}
+			
+			if(soundGetPromise instanceof Promise) {
+				soundGetPromise.then((soundInfo)=>{
+					if(soundInfo) {
+						let loopCount = soundInfo.loops;
+						
+						switch(soundInfo.how) {
+							case soundsNameConst.sfx:
+								//sound effect
+								if(
+									isNaN(loopCount) ||
+									!isFinite(loopCount)
+								) {
+									loopCount = 1;
+								}
 
-                sounds.sfx.push({
-                    playRemain: l - 1,
-                    loops: l,
-                    path: path,
-                    sound: ca
-                });
-                setTimeout(callback);
-                break;
+								switch(loopCount) {
+									case undefined:
+									case null:
+										loopCount = 1;
+										break;
+									case 0:
+										//play it... no times...?
+										setTimeout(topResolve);
+										return;
+								}
 
-            case soundsNameConst.bgm:
-                var bgm = sounds.bgm[path],
-                play = ()=>{
-                    stopSound(soundsNameConst.bgm);
-                    sounds.bgmCurrentlyPlaying = {
-                        sound: bgm,
-                        path: path
-                    };
-                    sounds.bgm[path] = bgm;
-                    if(!isNaN(bgm.duration)) {
-                        bgm.play();
-                    }
-                    setTimeout(callback);
-                };
+								var audio = new Audio(soundInfo.blobUrl);
+								audio.loop = (loopCount === -1);
+								audio.play();
 
-                if(bgm) {
-                    play();
-                } else {
-                    bgm = new Audio(url);
-                    bgm.loop = true;
-                    var fplay = ()=>{
-                        loadingResource--;
-                        bgm.removeEventListener('canplay', fplay);
-                        bgm.removeEventListener('error', err);
-                        play();
-                    },
-                    err = (e)=>{
-                        console.error(e);
-                        fplay();
-                    };;
-                    bgm.addEventListener('canplay', fplay);
-                    bgm.addEventListener('error', err);
-                }
-                break;
-        }
-    };
+								sounds.sfx.push({
+									playRemain: loopCount - 1,
+									loops: loopCount,
+									path: path,
+									sound: audio
+								});
+								setTimeout(topResolve);
+								break;
 
-    var urlStore;
-    switch(how) {
-        case soundsNameConst.bgm: urlStore = sounds.bgmUrls; break;
-        case soundsNameConst.sfx: urlStore = sounds.sfxUrls; break;
-    }
-
-    if(path) {
-        var esObjUrl = urlStore[path];
-        if(esObjUrl) {
-            if(esObjUrl.loading) {
-                esObjUrl.pending.push({
-                    how: how,
-                    loops: loops
-                });
-            } else if(esObjUrl.fail) {
-                setTimeout(callback);
-            } else {
-                actuallyPlaySound(
-                    esObjUrl,
-                    how,
-                    loops
-                );
-            }
-        } else {
-            var ftp = fileTypeConsts.sound; //FileTyPe
-            
-            console.log('get sound anew');
-            loadingResource++;
-
-            var thisSndObj = {
-                loading: true,
-                pending: [{
-                    how: how,
-                    loops: loops
-                }]
-            }
-
-            urlStore[path] = thisSndObj;
-
-            getFile(
-                ftp, //sound and music use the same directory
-                path,
-                (data)=>{
-                    if(how === soundsNameConst.sfx) {loadingResource--;}
-                    if(data) {
-                        var objurl = URL.createObjectURL(data);
-                        thisSndObj.pending.forEach((prms)=>{
-                            actuallyPlaySound(
-                                objurl,
-                                prms.how,
-                                prms.loops
-                            );
-                        });
-                        urlStore[path] = objurl;
-                    } else {
-                        if(how === soundsNameConst.bgm) {
-                            stopSound(soundsNameConst.bgm);
-                            loadingResource--;
-                            thisSndObj = {fail: true}
-                        }
-                        callback();
-                    }
-                }
-            );
-        }
-    }
+							case soundsNameConst.bgm:
+								let bgm = sounds.bgm[path];
+								let bgmPromise;
+								
+								if(bgm) {
+									bgmPromise = Promise.resolve();
+								} else {
+									bgmPromise = new Promise((resolve)=>{
+										bgm = new Audio(soundInfo.blobUrl);
+										bgm.loop = true;
+										bgm.addEventListener('canplay', resolve);
+										bgm.addEventListener('error', resolve);
+									});
+								}
+								
+								bgmPromise.then(()=>{
+									stopSound(soundsNameConst.bgm);
+									sounds.bgmCurrentlyPlaying = {
+										sound: bgm,
+										path: path
+									};
+									sounds.bgm[path] = bgm;
+									if(!isNaN(bgm.duration)) {
+										bgm.play();
+									}
+									setTimeout(topResolve);
+								});
+								break;
+						}
+					}
+				});
+			}
+		} else {
+			topReject('path is not specified');
+		}
+	});
 }

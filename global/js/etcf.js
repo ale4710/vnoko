@@ -91,12 +91,25 @@ function splitPath(path) {
     return path.split('/');
 }
 
-function blobToText(blob, doneFn) {
-    var fr = new FileReader();
-    fr.readAsText(blob);
-    fr.addEventListener('loadend', ()=>{
-        doneFn(fr.result);
-    });
+function fileReaderA(blob,to) {
+    return (new Promise((resolve, reject)=>{
+        if(blob instanceof Blob) {
+            var fr = new FileReader();
+            fr.addEventListener('load',(e)=>{
+                resolve(e.target.result);
+            });
+            fr.addEventListener('error',reject);
+            switch(to) {
+                case 'arraybuffer': fr.readAsArrayBuffer(blob); break;
+                case 'binarystring': fr.readAsBinaryString(blob); break;
+                case 'dataurl': fr.readAsDataURL(blob); break;
+                case 'text': fr.readAsText(blob); break;
+                default: reject('to was not defined - i dont know what to convert your file to');
+            }
+        } else {
+            reject('blob is not a blob');
+        }
+    }));
 }
 
 function ssaws(str) { //string split at whitespace

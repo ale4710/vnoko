@@ -157,12 +157,7 @@
 			}) //end enumerateFiles handlefn
 			.then(function(){
 				outputDisplay('Waiting for pending operations...');
-				
-				if(pendingPromises.length === 0) {
-					return Promise.resolve();
-				} else {
-					return Promise.allSettled(pendingPromises);
-				}
+				return Promise.allSettled(pendingPromises);
 			})
 			.then(function(){ //pendingPromises is resolved
 				//note: everything here is syncronous

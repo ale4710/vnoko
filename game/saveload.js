@@ -271,130 +271,115 @@ function loadGameFromFile(slot, callback) {
 }
 
 var generateThumbnailsOnLoad = true;
-function firstBootLoadSaves(callback, progCallback) {
-    //push list items
-    for(i = 0; i < 100; i++) {
-        var slmi = makeEl('div'),
-        txt = makeEl('span');
+function firstBootLoadSaves(progCallback) {
+	progCallback = progCallback || emptyFn;
+	//push list items
+	for(i = 0; i < 100; i++) {
+		let slmi = makeEl('div');
+		let txt = makeEl('span');
 
-        slmi.tabIndex = i;
-        slmi.textContent = `Slot ${numpad(i, 2)}: `;
-        slmi.classList.add('selectable');
+		slmi.tabIndex = i;
+		slmi.textContent = `Slot ${numpad(i, 2)}: `;
+		slmi.classList.add('selectable');
 
-        txt.textContent = 'Empty';
-        slmi.appendChild(txt);
+		txt.textContent = 'Empty';
+		slmi.appendChild(txt);
 
-        saveloadMenuDisplay.list.appendChild(slmi);
-    }
+		saveloadMenuDisplay.list.appendChild(slmi);
+	}
 
-    //load data
-    var senum = storage.enumerate(formGameDir(savepath)),
-    doneLooking = false,
-    savesSeen = 0,
-    savesPending = 0,
-    savesLoaded = 0,
-    awaitingGlobal = false,
-    updateProgress = ()=>{
-        progCallback(savesLoaded, savesSeen, savesPending);
-    },
-    confirmDone = ()=>{
-        updateProgress();
-        if(
-            savesPending <= 0 &&
-            doneLooking &&
-            !awaitingGlobal
-        ) {
-            (callback || emptyFn)();
-            saveFilesReady = true;
-        }
-    },
-    fileLoaded = ()=>{
-        savesPending--;
-        confirmDone();
-    };
-
-    firstBootLoadSaves = undefined;
-    
-    senum.onsuccess = ()=>{
-        var sf = senum.result; //save file
-		//if(sf){console.log('firstBootLoadSaves', sf.name);}
-        if(
-            sf &&
-            savesSeen <= 100
-        ) {
-            //console.log(savesSeen);
-
-            var filePath = splitPath(sf.name),
-            fileName = filePath[filePath.length - 1],
-            saveSlot = fileName.match(/^save(\d{2})\.sav$/i),
-            isGlobal = (fileName === (glbFileName + '.sav'));
-
-            awaitingGlobal = isGlobal;
-
-            if(saveSlot || isGlobal) {
-				savesSeen++;
-                savesPending++;
-
-                updateProgress();
-
-                blobToText(sf, (sfTxt)=>{
-                    if(saveSlot) {
-                        saveSlot = parseInt(saveSlot[1]);
-                        saveFiles[saveSlot] = null;
-                        var sfObj = parseSaveFile(sfTxt);
-                        if(sfObj) {
-                            saveFiles[saveSlot] = sfObj;
-                            updateSaveloadListEntry(
-                                saveSlot,
-                                dateToString(sfObj.date)
-                            );
-                            savesLoaded++;
-                            if(generateThumbnailsOnLoad) {
-                                generateSaveFileThumbnail(sfObj, (thumbDataUrl)=>{ 
-                                    sfObj.image = thumbDataUrl;
-                                    fileLoaded();
-                                });
-                                return;
-                            }
-                        } else {
-                            delete saveFiles[saveSlot];
-                        }
-                        fileLoaded();
-                    } else if(isGlobal) {
-                        var gblXml = (new DOMParser()).parseFromString(sfTxt, 'text/xml'),
-                        gblXmlBody = gblXml.querySelector('global');
-
-                        if(gblXmlBody) {
-                            var vars = gblXmlBody.getElementsByTagName('var');
-                            for(var i = 0; i < vars.length; i++) {
-                                var tv = parseSaveFileVariable(vars[i]);
-                                if(tv) {
-                                    globalVariables[tv.name] = tv.value;
-                                }
-                            }
-                            reassignGlobalVariables();
-                        }
-
-                        awaitingGlobal = false;
-                        savesLoaded++;
-                        fileLoaded();
-                    }
-                    
-                });
-            }
-
-            senum.continue();
-        } else {
-            doneLooking = true;
-            confirmDone();
-        }
-    }
-
-    senum.onerror = (e)=>{
-        console.log('couldnt load save.', e);
-        doneLooking = true;
-        confirmDone();
-    }
+	return new Promise(function(resolve) {
+		//load data
+		let savesSeen = 0;
+		let savesPending = 0;
+		let savesLoaded = 0;
+		
+		let pendingOperations = [];
+		
+		function updateProgress() {
+			progCallback(
+				savesSeen,
+				savesPending,
+				savesLoaded	
+			);
+		};
+		
+		enumerateFiles(
+			formGameDir(savepath),
+			function(file) {
+				if(savesSeen > 100) {
+					return 'stop';
+				} else {
+					let filePath = splitPath(sf.name);
+					let fileName = filePath[filePath.length - 1];
+					let saveSlot = fileName.match(/^save(\d{2})\.sav$/i);
+					let isGlobal = (fileName === (glbFileName + '.sav'));
+					
+					if(
+						saveSlot ||
+						isGlobal
+					) {
+						savesSeen++;
+						savesPending++;
+						pendingOperations.push(
+							fileReaderA(file, 'text').then((saveText)=>{
+								if(saveSlot) {
+									saveSlot = parseInt(saveSlot[1]);
+									let saveFile = parseSaveFile(saveText);
+									if(saveFile) {
+										saveFiles[saveSlot] = saveFile;
+										updateSaveloadListEntry(
+											saveSlot,
+											dateToString(saveFile.date)
+										);
+										if(generateThumbnailsOnLoad) {
+											pendingOperations.push(
+												generateSaveFileThumbnail(saveFile).then((thumbDataUrl)=>{
+													saveFile.image = thumbDataUrl;
+													savesPending--;
+													savesLoaded++;
+												})
+											);
+										} else {
+											savesPending--;
+											savesLoaded++;
+										}
+									} else {
+										savesPending--;
+									}
+									updateProgress();
+								} else if(isGlobal) {
+									let xml = (new DOMParser()).parseFromString(saveText, 'text/xml');
+									let xmlBody = gblXml.querySelector('global');
+									
+									if(xmlBody) {
+										let vars = gblXmlBody.getElementsByTagName('var');
+										for(let i = 0; i < vars.length; i++) {
+											let thisVar = parseSaveFileVariable(vars[i]);
+											if(thisVar) {
+												globalVariables[thisVar.name] = thisVar.value;
+											}
+										}
+										reassignGlobalVariables();
+									}
+									
+									savesPending--;
+									savesLoaded++;
+								} else {
+									//??????
+								}
+							})
+						);
+					}
+				}
+			}
+		)
+		.then(()=>{return Promise.allResolved(pendingOperations);})
+		.then(()=>{
+			saveFilesReady = true;
+			resolve();
+		});
+	});
 }
 
 //var saveFileThumbnailCanvas = makeEl('canvas').getContext('2d'),
@@ -418,119 +403,114 @@ function parseSaveFileDate(ds) {
         return null;
     }
 }
-function generateSaveFileThumbnail(saveFile, doneFn) {
-    if(!doneFn) {
-        console.error('generateSaveFileThumbnail: please assign a doneFn.')
-        return;
-    }
-	
-	//console.log('generating thumb');
-    var cv = makeEl('canvas').getContext('2d'),
-    currentSprite = 0,
-    saveFileThumbnailCanvasWidth = 100;
 
-    cv.canvas.width = scaling.w;
-    cv.canvas.height = scaling.h;
+function generateSaveFileThumbnail(saveFile) {
+	return new Promise(function(resolve){
+		//console.log('generating thumb');
+		let cv = makeEl('canvas').getContext('2d');
+		let saveFileThumbnailCanvasWidth = 100;
 
-    cv.clearRect(
-        0, 0,
-        cv.canvas.width,
-        cv.canvas.height
-    );
+		cv.canvas.width = scaling.w;
+		cv.canvas.height = scaling.h;
 
-    var drawNextSprite = ()=>{
-		//console.log('drawNextSprite', currentSprite);
-        var curSprite = saveFile.gameState.screen.sprites[currentSprite];
-        if(curSprite) {
-            getImage(
-                fileTypeConsts.sprite,
-                curSprite.path,
-                (imgUrl)=>{
-                    var img = createImg(imgUrl),
-                    drawImg = ()=>{
-                        cv.drawImage(
-                            img,
-                            (curSprite.x / baseScreenSize.w) * cv.canvas.width,
-                            (curSprite.y / baseScreenSize.h) * cv.canvas.height
-                        );
-                        dns();
-						//console.log(currentSprite);
-                    },
-                    dns = ()=>{
-                        currentSprite++;
-                        drawNextSprite();
-                    };
+		cv.clearRect(
+			0, 0,
+			cv.canvas.width,
+			cv.canvas.height
+		);
+		
+		let imagesLoading = [];
+		
+		//bg
+		if(saveFile.gameState.screen.background) {
+			imagesLoading.push(
+				getImage(
+					'background',
+					saveFile.gameState.screen.background
+				).then((burl)=>{
+					return {
+						blobUrl: burl
+					};
+				})
+			);
+		}
+		
+		//all other sprites
+		saveFile.gameState.screen.sprites.forEach((sprite)=>{
+			imagesLoading.push(
+				getImage(
+					'sprite',
+					sprite.path
+				).then((burl)=>{
+					return {
+						originalSprite: sprite,
+						blobUrl: burl
+					};
+				})
+			);
+		});
+		
+		Promise.all(imagesLoading).then((toDrawArray)=>{
+			let currentDraw = 0;
+			
+			function drawNext(){
+				let curDraw = toDrawArray.shift();
+				if(curDraw) {
+					let img = createImg(curDraw.blobUrl);
 					
-					img.addEventListener('load', drawImg);
-                    img.addEventListener('error', dns);
-                }
-            );
-        } else {
-            //done
-            var finalImg = createImg(cv.canvas.toDataURL()),
-            ow = cv.canvas.width, oh = cv.canvas.height, //original width, original height
-            //scaled width, scaled heigght
-            sw = saveFileThumbnailCanvasWidth,
-            sh = saveFileThumbnailCanvasWidth * (oh / ow);
+					img.addEventListener('error', drawNext);
+					img.addEventListener('load', function(){
+						let x = 0;
+						let y = 0;
+						let w = img.width;
+						let h = img.height;
+						
+						if('originalSprite' in curDraw) {
+							let os = curDraw.originalSprite;
+							x = (os.x / baseScreenSize.w) * cv.canvas.width;
+							y = (os.y / baseScreenSize.h) * cv.canvas.height;
+						} else {
+							let scale = canvasImgScale(cv, img);
+							w *= scale;
+							h *= scale;
+							x = (cv.canvas.width / 2) - (w / 2);
+							y = (cv.canvas.height / 2) - (h / 2);
+						}
+						
+						cv.drawImage(
+							img,
+							x, y,
+							w, h
+						);
+					});
+				} else {
+					//done
+					let finalImg = createImg(cv.canvas.toDataURL());
+					//orig width, height
+					let ow = cv.canvas.width; 
+					let oh = cv.canvas.height;
+					//scaled width, scaled heigght
+					let sw = saveFileThumbnailCanvasWidth;
+					let sh = saveFileThumbnailCanvasWidth * (oh / ow);
 
-            cv.canvas.width = sw;
-            cv.canvas.height = sh;
-            cv.clearRect(0, 0, sw, sh);
-            finalImg.addEventListener('load', ()=>{
-                cv.drawImage(
-                    finalImg,
-                    0, 0,
-                    sw,
-                    sh
-                );
-                doneFn(cv.canvas.toDataURL('image/jpeg'));
-            });
-        }
-    };
-
-    var bg = saveFile.gameState.screen.background;
-    if(bg) {
-        //console.log(bg, bg.substring(fileTypeInfo[fileTypeConsts.background].dir.length + 1));
-        getImage(
-            fileTypeConsts.background,
-            bg/* .substring(fileTypeInfo[fileTypeConsts.background].dir.length + 1) */,
-            (imgUrl)=>{
-                if(imgUrl) {
-                    var img = createImg(imgUrl),
-                    
-                    drawImg = ()=>{
-                        var scale = canvasImgScale(cv, img),
-                        w = img.width * scale[1],
-                        h = img.height * scale[1],
-                        x = (cv.canvas.width / 2) - (w / 2),
-                        y = (cv.canvas.height / 2) - (h / 2);
-
-                        //console.log(x, y, w, h);
-
-                        cv.drawImage(
-                            img,
-                            x, y,
-                            w, h
-                        );
-                        /* cv.drawImage(
-                            img,
-                            0,0
-                        ); */
-                        drawNextSprite();
-                    };
-
-                    if(img.complete) {
-                        drawImg();
-                    } else {
-                        img.addEventListener('load', drawImg);
-                        img.addEventListener('error', drawNextSprite);
-                    }
-                }
-            }
-        );
-    } else {
-        drawNextSprite();
-    }
+					cv.canvas.width = sw;
+					cv.canvas.height = sh;
+					cv.clearRect(0, 0, sw, sh);
+					finalImg.addEventListener('load', ()=>{
+						cv.drawImage(
+							finalImg,
+							0, 0,
+							sw, sh
+						);
+						resolve(cv.canvas.toDataURL('image/jpeg'));
+					});
+				}
+			};
+			
+			drawNext();
+		});
+	
+	});
 }
 
 function parseSaveFileVariable(cv) {

@@ -1,6 +1,6 @@
-function checkInfoFile(blob, callback) {
+function checkInfoFile(blob) {
 	return new Promise(function(resolve) {
-		blobToText(blob, (title)=>{
+		fileReaderA(blob, 'text').then((title)=>{
 			if(title) {
 				title = title.match(/^title\=([^\r\n]*)[\r\n]*$/i);
 				if(title) {

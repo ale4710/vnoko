@@ -30,7 +30,12 @@ function enumerateFiles(path, handlefn) {
 				if(iterateRetv.done) {
 					resolve();
 				} else {
-					handlefn(iterateRetv.value);
+					let handlefnrv = handlefn(iterateRetv.value);
+					if(handlefnrv === 'stop') {
+						resolve();
+					} else {
+						next();
+					}
 				}
 			};
 			
@@ -39,14 +44,20 @@ function enumerateFiles(path, handlefn) {
 				.then(reciever)
 				.catch(reject);
 			};
+			
+			next();
 		} else {
 			//not 3.0
 			dsEnum.addEventListener('success', function(ev) {
 				if(ev.target.done) {
 					resolve();
 				} else {
-					handlefn(ev.target.result);
-					ev.target.continue();
+					let handlefnrv = handlefn(ev.target.result);
+					if(handlefnrv === 'stop') {
+						resolve();
+					} else {
+						ev.target.continue();
+					}
 				}
 			});
 			

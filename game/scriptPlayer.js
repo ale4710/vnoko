@@ -13,85 +13,70 @@ locked = true;
 
 
 //loader.
-function loadScript(filepath, callback) {
-    callback = callback || emptyFn;
-    console.log('loading ' + filepath);
-    if(script) {
-        script.unloading = true;
-    }
+function loadScript(filepath) {
+	return new Promise(function(topResolve, topReject) {
+		console.log('loading' + filepath);
+		
+		if(script) {
+			script.unloading = true;
+		}
 
-    loadingResource++;
-    updatenavbar();
+		loadingResource++;
+		updatenavbar();
 
-    //var loadingMessage = printSystemMessage('Loading...');
+		//var loadingMessage = printSystemMessage('Loading...');
 
-    getFile(
-        fileTypeConsts.script,
-        filepath,
-        (data/* , respType, rqObject */)=>{
-            if(data === null) {
-                console.error('THE DATA DOESNT EXISSSSSSSTGTTTTTTUTTHTYTYTY');
-                callback(false);
-            } else {
-                /* if(respType === requestTypes.fs) {
-                    if(rqObject.status !== 200) {
-                        return;
-                    }
-                } */
-                if(data instanceof Blob) {
-                    blobToText(data, (res)=>{
-                        console.log('loaded', filepath);
-                        script = parseScript(res);
-                        script.path = filepath;
-
-                        var start = ()=>{
-                            //loadingMessage.remove();
-                            loadingResource--;
-                            updatenavbar();
-                            callback(true);
-                        };
-
-                        //preloading images
-                        if(script.imagesToUse.length === 0) {
-                            //if there are no images just call immediately
-                            start();
-                        } else {
-                            var checkAllLoaded = ()=>{
-                                if(++il == ie) {
-                                    start();
-                                }
-                            },
-                            il = 0, ie = 0; //il = img loaded, ie = img expect
-                            script.imagesToUse.forEach((imgInfo)=>{
-                                ie++;
-                                getImage(
-                                    imgInfo.type,
-                                    imgInfo.path,
-                                    (url)=>{
-                                        if(url) {
-                                            var limg = new Image(),
-                                            checkedAction = ()=>{
-                                                limg.remove();
-                                                checkAllLoaded();
-                                            };
-                                            limg.src = url;
-                                            limg.addEventListener('load', checkedAction);
-                                            limg.addEventListener('error', checkedAction);
-                                            limg.style.opacity = 0;
-                                            document.body.appendChild(limg);
-                                        } else {
-                                            checkAllLoaded();
-                                        }
-    
-                                    }
-                                );
-                            });
-                        }
-                    });
-                }
-            }
-        }
-    );
+		getFile(
+			fileTypeConsts.script,
+			filepath
+		).then((data)=>{
+			if(
+				data.file &&
+				data.file instanceof Blob
+			) {
+				fileReaderA(data.file, 'text').then((result)=>{
+					console.log('loaded', filepath);
+					script = parseScript(result);
+					script.path = filepath;
+					
+					//preload images
+					let imgLoadPromise;
+					if(script.imagesToUse.length === 0) {
+						//if there are no images just finish immediately
+						imgLoadPromise = Promise.resolve();
+					} else {
+						imgLoadPromise = [];
+						script.imagesToUse.forEach((imgInfo)=>{
+							imgLoadPromise.push(
+								getImage(
+									imgInfo.type,
+									imgInfo.path
+								).then((burl)=>{
+									return new Promise((resolve)=>{
+										let img = createImg(burl);
+										img.addEventListener('load', resolve);
+										img.addEventListener('error', resolve);
+									});
+								})
+							);
+						});
+						imgLoadPromise = Promise.allSettled(imgLoadPromise);
+					}
+					
+					imgLoadPromise.then(()=>{
+						loadingResource--;
+						updatenavbar();
+						topResolve();
+					});
+				});
+			} else {
+				topReject();
+			}
+		}).catch(()=>{
+			console.error('THE DATA DOESNT EXISSSSSSSTGTTTTTTUTTHTYTYTY');
+			topReject();
+		});
+	});
 }
 
 function skipToggle(targetSkip) {
@@ -325,27 +310,25 @@ function continueScript() {
                 }
                 proceed = false;
                 pendingDelay = true;
-                var fn = replaceAllVar(curInst.filename);
+                let fileName = replaceAllVar(curInst.filename);
+                
 				getImage(
 					fileTypeConsts.sprite,
-					fn,
-					(imgUrl)=>{
-                        //console.log(imgUrl);
-                        updatenavbar();
-						if(imgUrl) {
-							drawImage(
-								imgUrl,
-								rtIfVariable(curInst.x),
-								rtIfVariable(curInst.y),
-								fn,
-                                delayEndCS
-							);
-						} else {
-							console.error('failed to get image', fn);
-                            setTimeout(delayEndCS);
-						}
+					fileName
+				).then((imgUrl)=>{
+					updatenavbar();
+					if(imgUrl) {
+						drawImage(
+							imgUrl,
+							rtIfVariable(curInst.x),
+							rtIfVariable(curInst.y),
+							fileName
+						).then(delayEndCS);
+					} else {
+						console.error('failed to get image', fileName);
+						setTimeout(delayEndCS);
 					}
-				);
+				});
                 console.log('waiting for setimg.');
 				break;
 
@@ -356,10 +339,9 @@ function continueScript() {
                     proceed = false;
                     pendingDelay = true;
                     playSound(
-                        delayEndCS,
-                        rtIfVariable(curInst.filename),
-                        soundsNameConst.bgm
-                    );
+						rtIfVariable(curInst.filename),
+						soundsNameConst.bgm
+                    ).then(delayEndCS);
                 }
                 break;
 
@@ -371,11 +353,10 @@ function continueScript() {
                         proceed = false;
                         pendingDelay = true;
                         playSound(
-                            delayEndCS,
                             rtIfVariable(curInst.filename),
                             soundsNameConst.sfx,
                             curInst.loops
-                        );
+                        ).then(delayEndCS);
                     }
                 }
                 break;
@@ -520,19 +501,14 @@ function continueScript() {
                 }
                 proceed = false;
                 pendingDelay = true;
-                loadScript(
-                    replaceAllVar(curInst.filename),
-                    (status)=>{
-                        if(status) {
-                            delayEndCS();
-                        } else {
-                            printSystemMessage(
-                                'jump command: the script could not be found.',
-                                2
-                            );
-                        }
-                    }
-                );
+                loadScript(replaceAllVar(curInst.filename))
+                .then(delayEndCS)
+                .catch(()=>{
+					printSystemMessage(
+						'jump command: the script could not be found.',
+						2
+					);
+				});
                 break;
 
             /* default:

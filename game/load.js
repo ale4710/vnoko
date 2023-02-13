@@ -24,59 +24,43 @@ var requestTypes = {
     zip: 1
 };
 
-function getFile(type, filename, callback, responseType) {
-    var fti = fileTypeInfo, //"fti" = file type info
-    rqfCallback = (e)=>{
-        var rq = e.target;
-        callback(
-            rq.result, 
-            requestTypes.fs,
-            rq
-        );
-    };
-    /* rqfCallback = (e)=>{
-        var rq = e.target;
-        if(rq.readyState === rq.DONE) {
-            callback(
-                rq.response, 
-                requestTypes.fs,
-                rq
-            );
-        }
-    }; */
-    
-    if(type === -1) {
-        requestFile(formGameDir(filename), rqfCallback);
-    } else {
-        //"tft" = this file type
-        var tft = fti[type];
-        if(tft.archive) {
-            var fia = tft.archive.files[tft.archivePrefix + filename];
-            if(fia) {
-                fia.async(responseType || 'blob')
-                    .then((data)=>{
-                        callback(
-                            data,
-                            requestTypes.zip
-                        )
-                    })
-                    .catch((err)=>{
-                        console.error(err);
-                        callback(
-                            null,
-                            requestTypes.zip,
-                            err
-                        )
-                    });
-            } else {
-                callback(
-                    null,
-                    requestTypes.zip
-                );
-            }
-            
-        } else {
-            requestFile(formGameDir(`${fti[type].dir}/${filename}`), rqfCallback);
-        }
-    }
+function getFile(type, filename, responseType) { //returns a promise
+	if(type === -1) {
+		return requestFile(formGameDir(filename)).then((file)=>{
+			return {
+				file: file,
+				source: requestTypes.fs
+			};
+		});
+	} else {
+		let thisFileType = fileTypeInfo[type];
+		let returnValue = {
+			file: null
+		};
+		if(thisFileType.archive) {
+			returnValue.source = requestTypes.zip;
+			let archiveFile = thisFileType.archive.files[thisFileType.archivePrefix + filename];
+			if(archiveFile) {
+				return archiveFile.async(responseType || 'blob').then((file)=>{
+					returnValue.file = file;
+					return returnValue;
+				}).catch((err)=>{
+					console.error(err);
+					returnValue.error = err;
+					return returnValue;
+				})
+			} else {
+				return Promise.resolve(returnValue);
+			}
+		} else {
+			returnValue.source = requestTypes.fs;
+			return requestFile(formGameDir(`${fileTypeInfo[type].dir}/${filename}`)).then((file)=>{
+				returnValue.file = file;
+				return returnValue;
+			}).catch((err)=>{
+				returnValue.error = err;
+				return returnValue;
+			});
+		}
+	}
 }

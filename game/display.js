@@ -47,9 +47,9 @@ images[fileTypeConsts.background] = {};
 function startNewScreen(fadeTime, transitionEndCB) {
     transitionEndCB = transitionEndCB || emptyFn;
 
-    var oScr = display.screen, //old screen
-    nScr = makeEl('div'), //new screen
-    dsc = display.screenContainer;
+    let oScr = display.screen; //old screen
+    let nScr = makeEl('div'); //new screen
+    let dsc = display.screenContainer;
 
     
     dsc.appendChild(nScr);
@@ -113,76 +113,62 @@ function startNewScreen(fadeTime, transitionEndCB) {
     };
 }
 
-function drawImage(img, x, y, origFilePath, callback) {
-    callback = callback || emptyFn;
-    if(typeof(img) === 'string') {
-        var src = img;
-        img = new Image();
-        img.src = src;
-    }
+function drawImage(img, x, y, origFilePath) {
+	return new Promise(function(resolve) {
+		if(typeof(img) === 'string') {
+			var src = img;
+			img = new Image();
+			img.src = src;
+		}
 
-    if(img instanceof Image) {
-        /* img.style.left = ((x / scaling.w) * 100) + '%';
-        img.style.top = ((y / scaling.h) * 100) + '%'; */
+		if(img instanceof Image) {
+			img.style.left = ((x / baseScreenSize.w) * 100) + '%';
+			img.style.top = ((y / baseScreenSize.h) * 100) + '%';
+			img.dataset.path = origFilePath;
+			img.dataset.x = x;
+			img.dataset.y = y;
 
-        img.style.left = ((x / baseScreenSize.w) * 100) + '%';
-        img.style.top = ((y / baseScreenSize.h) * 100) + '%';
-        img.dataset.path = origFilePath;
-        img.dataset.x = x;
-        img.dataset.y = y;
-
-        /* if(!pendingNewScreen) {
-            img.addEventListener('animationend', function imgAniEnd() {
-                img.removeEventListener('animationend', imgAniEnd);
-                callback(true);
-            });
-            var fadeTime = defaultFadeTime * !skipping;
-            applyAnimation(
-                img,
-                'fade',
-                fadeTime * frameLength
-            );
-        } else {
-            setTimeout(callback, 0, true);
-        } */
-
-        setTimeout(callback, 0, true);
-
-        display.screen.appendChild(img);
-    } else {
-        setTimeout(callback, 0, false);
-    }
+			display.screen.appendChild(img);
+			setTimeout(resolve, 0, true);
+		} else {
+			setTimeout(resolve, 0, false);
+		}
+	});
 }
-function getImage(which, path, callback) {
-    var eiObjUrl = images[which][path]; //existing image object url
-    if(eiObjUrl) {
-        if(eiObjUrl.loading) {
-            eiObjUrl.callbacks.push(callback);
-        } else {
-            callback(images[which][path]);
-        }
-    } else {
-        console.log('get image anew', path);
-        loadingResource++;
-        images[which][path] = {
-            loading: true,
-            callbacks: [callback]
-        };
-        getFile(
-            which,
-            path,
-            (data)=>{
-                loadingResource--;
-                var objurl = null;
-                if(data) {objurl = URL.createObjectURL(data);}
-                images[which][path].callbacks.forEach((fn)=>{
-                    fn(objurl);
-                });
-                images[which][path] = objurl;
-            }
-        )
-        
-    }
+function getImage(which, path) {
+	return new Promise(function(resolve) {
+		var eiObjUrl = images[which][path]; //existing image object url
+		if(eiObjUrl) {
+			if(eiObjUrl.loading) {
+				eiObjUrl.callbacks.push(resolve);
+			} else {
+				resolve(images[which][path]);
+			}
+		} else {
+			console.log('get image anew', path);
+			loadingResource++;
+			images[which][path] = {
+				loading: true,
+				callbacks: [resolve]
+			};
+			
+			getFile(
+				which,
+				path
+			).then(function(result){
+				console.log(result);
+				loadingResource--;
+				let objurl = null;
+				if(result.file) {objurl = URL.createObjectURL(result.file);}
+				let resolves = images[which][path].callbacks;
+				images[which][path] = objurl;
+				resolves.forEach((lresolve)=>{
+					lresolve(objurl);
+				});
+			});
+			
+		}
+	});
 }
 
 function setBackground(filename, duration, transitionEndCB) {
@@ -190,15 +176,14 @@ function setBackground(filename, duration, transitionEndCB) {
     if(filename) {
         getImage(
             fileTypeConsts.background,
-            filename,
-            (url)=>{
-                console.log('setbg', url);
-                if(url) {
-                    display.screen.dataset.bgPath = filename;
-                    display.screen.style.backgroundImage = `url(${url})`;
-                }
-            }
-        );
+            filename
+        ).then((url)=>{
+			console.log('setbg', url);
+			if(url) {
+				display.screen.dataset.bgPath = filename;
+				display.screen.style.backgroundImage = `url(${url})`;
+			}
+		});
     }
     return rtf;
 }
