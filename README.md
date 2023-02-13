@@ -3,10 +3,12 @@
 
 a vnds interpreter for kaios.
 
-## download stable version
-not yet available.
+## rewrite
+i am in the process of rewriting a lot of stuff to make it easier to maintain.
 
-if you'd like to try it just download the entire repo.
+therefore, the "live" repo is most likely very unstable.
+
+please download the "v1" tag's source code if you would like a (mostly) stable version.
 
 ## novel structure
 place novels in the folder
