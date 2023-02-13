@@ -1,24 +1,63 @@
 var mainGameFolder = '.vnoko',
 novelsFolder = 'novels',
-storage = navigator.getDeviceStorage('sdcard');
+storage = getb2g().getDeviceStorage('sdcard');
 
 function formDir(relFilePath) {
     return `${mainGameFolder}/${relFilePath}`;
 }
-function requestFile(path, callback) {
-    var rq = storage.get(path);
+function requestFile(path) {
+	return new Promise(function(resolve, reject){
+		let rq = storage.get(path);
 
-    rq.onsuccess = (e)=>{
-        console.log(e.target.result);
-        callback(e);
-    };
-    rq.onerror = (e)=>{
-        console.error(path, e.target.error);
-        callback(e);
-    }
+		rq.onsuccess = (e)=>{
+			//console.log(e.target.result);
+			resolve(e.target.result);
+		};
+		rq.onerror = (e)=>{
+			console.error(path, e.target.error);
+			reject(e);
+		}
+	});
 }
 
-navigator.getDeviceStorages('sdcard').forEach(tds => {
+function enumerateFiles(path, handlefn) {
+	return new Promise(function(resolve, reject){
+		let dsEnum = storage.enumerate(path);
+		if(checkb2gns()) {
+			//3.0
+			let fileIterate = dsEnum.values();
+			function reciever(iterateRetv) {
+				if(iterateRetv.done) {
+					resolve();
+				} else {
+					handlefn(iterateRetv.value);
+				}
+			};
+			
+			function next() {
+				fileIterate.next()
+				.then(reciever)
+				.catch(reject);
+			};
+		} else {
+			//not 3.0
+			dsEnum.addEventListener('success', function(ev) {
+				if(ev.target.done) {
+					resolve();
+				} else {
+					handlefn(ev.target.result);
+					ev.target.continue();
+				}
+			});
+			
+			dsEnum.addEventListener('error', function(ev) {
+				reject(e);
+			});
+		}
+	});
+}
+
+getb2g().getDeviceStorages('sdcard').forEach(tds => {
     if(
         tds.storageName.toLowerCase() === 'sdcard' &&
         tds.default
