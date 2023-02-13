@@ -27,9 +27,11 @@ function addGlobalReference(type, filename) {
     [
         //lib
         lb + 'jszip.min',
+        lb + 'allsettled-polyfill',
 
         //normal scripts
         'etcf',
+        'compat',
         'testClass',
         'classes',
         'commonFiles',
