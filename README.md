@@ -31,6 +31,6 @@ however, the other way around, saves in slots 17~99 (or something like that) wil
 ## attribution
 [JSZip](http://stuartk.com/jszip) v3.5.0 by Stuart Knightley, licenced under MIT Licence.
 
-[allsettled-polyfill](https://github.com/amrayn/allsettled-polyfill) by Amrayn Web Services & @abumusamq, licenced under MIT Licence.
+[allsettled-polyfill](https://github.com/amrayn/allsettled-polyfill) by Amrayn Web Services & abumusamq, licenced under MIT Licence.
 
 [VNDS](https://github.com/BASLQC/vnds) script format.
