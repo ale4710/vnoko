@@ -442,7 +442,7 @@ function continueScript() {
 
             case 'random':
                 var randMult = curInst.max - curInst.min,
-                num = math.floor(curInst.min + (math.random() * (randMult + 1)));
+                num = Math.floor(curInst.min + (Math.random() * (randMult + 1)));
 
                 operandsAction[operands.set](
                     curInst.var,
