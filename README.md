@@ -8,7 +8,8 @@ i am in the process of rewriting a lot of stuff to make it easier to maintain.
 
 therefore, the "live" repo is most likely very unstable.
 
-please download the "v1" tag's source code if you would like a (mostly) stable version.
+please download the "v1" tag's source code if you would like a (mostly) stable version.  
+if you cant see the "v1" tag for some reason, the commit hash is ea5539ed 
 
 ## novel structure
 place novels in the folder
